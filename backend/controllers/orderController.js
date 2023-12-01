@@ -37,7 +37,7 @@ const addOrderItems = asyncHandler(async (req, res) => {
     });
     const createdOrder = await order.save();
 
-    res.status(201).json(createOrder);
+    res.status(201).json(createdOrder);
    }
 });
 
@@ -46,7 +46,7 @@ const addOrderItems = asyncHandler(async (req, res) => {
 // @access Private
 const getMyOrder = asyncHandler(async (req, res) => { 
   const orders = await Order.find({user: req.user._id});
-  res.status(200).json(orders);
+  res.json(orders);
  });
 
 // @desc Get order by ID
@@ -57,7 +57,7 @@ const getOrderById = asyncHandler(async (req, res) => {
     'user','name email');
 
     if(order) {
-        res.status(200).json(order);
+        res.json(order);
     } else {
         res.status(404);
         throw new Error('Order not found');
@@ -66,14 +66,32 @@ const getOrderById = asyncHandler(async (req, res) => {
  });
 
 // @desc Upadate order to paid
-// @route GET/api/orders/:id/pay
+// @route Put/api/orders/:id/pay
 // @access Private
 const updateOrderToPaid = asyncHandler(async (req, res) => { 
-    res.send('update order to paid');
+    const order = await Order.findById(req.params.id);
+
+    if(order) {
+        order.isPaid = true;
+        order.paidAt = Date.now();
+        order.paymentResult = {
+            id: req.body.id,
+            status: req.body.status,
+            update_time: req.body.update_time,
+            email_address: req.body.payer.email_address
+        };
+        const updatedOrder = await order.save();
+
+        res.status(200).json(updatedOrder);
+    } else {
+        res.status(404);
+        throw new Error('Order not found');
+
+    }
  });
  
 // @desc Upadate order to delivered
-// @route GET/api/orders/:id/deliver
+// @route PUT/api/orders/:id/deliver
 // @access Private/Admin
 const updateOrderToDelivered = asyncHandler(async (req, res) => { 
     res.send('update order to delivered');
@@ -92,5 +110,5 @@ const getOrders= asyncHandler(async (req, res) => {
     getOrderById,
     updateOrderToPaid,
     updateOrderToDelivered,
-    getOrders
+    getOrders,
  };

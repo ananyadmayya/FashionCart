@@ -15,6 +15,7 @@ const PlaceOrderScreen = () => {
   const cart = useSelector((state) => state.cart);
 
   const [createOrder, { isLoading, error }] = useCreateOrderMutation();
+  
 
   useEffect(() => {
     if (!cart.shippingAddress.address) {
@@ -36,9 +37,9 @@ const PlaceOrderScreen = () => {
         taxPrice: cart.taxPrice,
         totalPrice: cart.totalPrice,
       }).unwrap();
+    
       dispatch(clearCartItems());
-      const orderId= res._id;
-      navigate(`/order/${orderId}`);
+      navigate(`/order/${res._id}`);
     } catch (err) {
       toast.error(err);
     }
@@ -153,4 +154,5 @@ const PlaceOrderScreen = () => {
     </>
   );
 };
+
 export default PlaceOrderScreen;
